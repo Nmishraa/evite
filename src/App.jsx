@@ -9,6 +9,7 @@ import Auth from './components/Auth';
 import UserProfileModal from './components/UserProfileModal';
 import NotificationsDrawer from './components/NotificationsDrawer';
 import { firebaseService } from './firebaseService';
+import { apiService } from './apiService';
 import './App.css';
 
 const DEFAULT_EVENT_ID = 'main-event-2026';
@@ -74,6 +75,9 @@ function App() {
 
   const handleLogin = async (credentials) => {
     try {
+      // Save user to PostgreSQL database
+      const dbUser = await apiService.loginUser(credentials);
+
       if (credentials.isGuest) {
         await firebaseService.signInGuest();
       } else {
@@ -83,6 +87,9 @@ function App() {
         } catch (err) {
           await firebaseService.signUp(email, password);
         }
+      }
+      if (dbUser) {
+        setUser({ ...credentials, ...dbUser });
       }
       setCurrentScreen('home');
     } catch (err) {

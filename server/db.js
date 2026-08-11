@@ -24,6 +24,19 @@ export async function initDb() {
   try {
     console.log(`Connecting to PostgreSQL database at ${process.env.DB_HOST || '2.24.200.44'}:${process.env.DB_PORT || '5433'}...`);
     
+    // Create User table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS "User" (
+        id TEXT PRIMARY KEY,
+        email TEXT UNIQUE,
+        password TEXT,
+        name TEXT,
+        "isGuest" BOOLEAN DEFAULT false,
+        "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
     // Create events table
     await client.query(`
       CREATE TABLE IF NOT EXISTS events (

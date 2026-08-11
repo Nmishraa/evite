@@ -33,6 +33,45 @@ app.get('/api/health', async (req, res) => {
   }
 });
 
+// GET all users
+app.get('/api/users', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT id, email, name, "isGuest", "createdAt", "updatedAt" FROM "User" ORDER BY "createdAt" DESC');
+    res.json(result.rows);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST user signin / signup
+app.post('/api/users/login', async (req, res) => {
+  const { email, name, password, isGuest } = req.body;
+  const userEmail = email || (isGuest ? `guest_${Date.now()}@evite.local` : 'anonymous@evite.local');
+  const userName = name || (isGuest ? 'Guest User' : userEmail.split('@')[0]);
+  const userId = `usr_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+  const userPassword = password || 'guest_password';
+
+  try {
+    // Upsert by email or insert new user
+    const query = `
+      INSERT INTO "User" (id, email, password, name, "isGuest", "createdAt", "updatedAt")
+      VALUES ($1, $2, $3, $4, $5, NOW(), NOW())
+      ON CONFLICT (email) 
+      DO UPDATE SET 
+        name = EXCLUDED.name,
+        "updatedAt" = NOW()
+      RETURNING id, email, name, "isGuest", "createdAt", "updatedAt";
+    `;
+    const values = [userId, userEmail, userPassword, userName, Boolean(isGuest)];
+    const result = await pool.query(query, values);
+    console.log(`User saved to PostgreSQL "User" table: ${userEmail}`);
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Error saving user to database:', error.message);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // GET all events
 app.get('/api/events', async (req, res) => {
   try {
