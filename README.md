@@ -1,4 +1,4 @@
-# Evite - Digital Invitation & Event Management Platform
+# Evite App - Digital Invitation & Event Management Platform
 
 A modern, responsive digital invitation and event management web application built with React, Vite, and Firebase.
 
@@ -19,7 +19,7 @@ A modern, responsive digital invitation and event management web application bui
 ## 📁 Project Structure
 
 ```
-evite/
+evite-app/
 ├── public/              # Static assets (favicons, icons)
 ├── src/
 │   ├── assets/          # Images and SVG assets
@@ -38,7 +38,7 @@ evite/
 ### 1. Clone the repository
 ```bash
 git clone <your-repository-url>
-cd evite
+cd evite-app
 ```
 
 ### 2. Install dependencies
