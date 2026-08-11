@@ -61,11 +61,28 @@ function App() {
     });
   }, []);
 
-  // Handle Realtime Event Data
+  // Load database events, guests, and comments on mount/login
   useEffect(() => {
     if (!user) return;
+    
+    // Save initial event to DB if not exists
+    apiService.saveEvent(INITIAL_EVENT_DATA);
+
+    // Fetch guests & comments from PostgreSQL DB
+    const fetchDbData = async () => {
+      const dbGuests = await apiService.getGuests(DEFAULT_EVENT_ID);
+      const dbComments = await apiService.getComments(DEFAULT_EVENT_ID);
+      if (dbGuests && dbGuests.length > 0) {
+        setEventData(prev => ({ ...prev, guests: dbGuests }));
+      }
+      if (dbComments && dbComments.length > 0) {
+        setEventData(prev => ({ ...prev, comments: dbComments }));
+      }
+    };
+    fetchDbData();
+
     return firebaseService.subscribeToEvent(DEFAULT_EVENT_ID, (data) => {
-      setEventData(data);
+      setEventData(prev => ({ ...prev, ...data }));
       if (data.templateId) {
         const template = TEMPLATES.find(t => t.id === data.templateId);
         if (template) setSelectedTemplate(template);
@@ -113,7 +130,15 @@ function App() {
   const handleRSVP = async (status, name) => {
     if (!name) return;
     try {
+      const newGuest = { eventId: DEFAULT_EVENT_ID, name, status };
+      await apiService.saveGuest(newGuest);
       await firebaseService.updateRSVP(DEFAULT_EVENT_ID, { name, status });
+      
+      // Update local state
+      setEventData(prev => ({
+        ...prev,
+        guests: [...(prev.guests || []).filter(g => g.name !== name), { id: Date.now(), name, status }]
+      }));
       setCurrentUser({ name, isRegistered: true });
     } catch (err) {
       console.error("RSVP error", err);
@@ -134,6 +159,7 @@ function App() {
     setCurrentScreen('preview');
     
     try {
+      await apiService.saveEvent(updatedData);
       await firebaseService.saveEvent(DEFAULT_EVENT_ID, updatedData);
     } catch (err) {}
   };
@@ -142,6 +168,7 @@ function App() {
     const newData = { ...eventData, ...updatedFields };
     setEventData(newData);
     try {
+      await apiService.saveEvent(newData);
       await firebaseService.saveEvent(DEFAULT_EVENT_ID, newData);
     } catch (err) {
       console.error("Update error", err);
@@ -150,25 +177,53 @@ function App() {
 
   const handleAddGuest = async (guest) => {
     try {
+      const guestPayload = {
+        eventId: DEFAULT_EVENT_ID,
+        name: guest.name,
+        email: guest.contact || guest.email || '',
+        status: 'pending'
+      };
+      await apiService.saveGuest(guestPayload);
       await firebaseService.updateRSVP(DEFAULT_EVENT_ID, { ...guest, status: 'pending' });
-    } catch (err) {}
+
+      setEventData(prev => ({
+        ...prev,
+        guests: [...(prev.guests || []), { id: Date.now(), ...guest, status: 'pending' }]
+      }));
+    } catch (err) {
+      console.error("Add guest error", err);
+    }
   };
 
   const handleRemoveGuest = async (guestId) => {
     try {
+      setEventData(prev => ({
+        ...prev,
+        guests: (prev.guests || []).filter(g => g.id !== guestId)
+      }));
       await firebaseService.removeGuest(DEFAULT_EVENT_ID, guestId);
     } catch (err) {}
   };
 
   const handleAddComment = async (text) => {
+    const authorName = user?.displayName || user?.name || currentUser.name || 'Guest';
     const newComment = {
-      author: user?.displayName || user?.name || currentUser.name || 'Guest',
+      eventId: DEFAULT_EVENT_ID,
+      author: authorName,
       text,
       time: 'Just now'
     };
     try {
+      await apiService.addComment(newComment);
       await firebaseService.addComment(DEFAULT_EVENT_ID, newComment);
-    } catch (err) {}
+
+      setEventData(prev => ({
+        ...prev,
+        comments: [...(prev.comments || []), newComment]
+      }));
+    } catch (err) {
+      console.error("Add comment error", err);
+    }
   };
 
   const handleSendInvite = (guest) => {
