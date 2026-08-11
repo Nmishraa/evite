@@ -131,17 +131,25 @@ const Dashboard = ({ event, guests, onUpdateEvent, onAddGuest, onRemoveGuest, on
           />
 
           <div className="payment-settings-card glass-card" style={{ marginTop: '24px' }}>
-            <div className="list-header" onClick={() => setShowPaymentSettings(!showPaymentSettings)} style={{ cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div className="list-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <DollarSign size={20} className="text-secondary" />
-                <h3>Peer-to-Peer Payment Links</h3>
+                <h3>Gift Registry & Contributions</h3>
               </div>
-              <span className="badge">{showPaymentSettings ? 'Hide' : 'Show'}</span>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 'bold' }}>
+                <input 
+                  type="checkbox"
+                  checked={Boolean(event.showGiftRegistry)}
+                  onChange={(e) => onUpdateEvent({ showGiftRegistry: e.target.checked })}
+                  style={{ width: '18px', height: '18px', accentColor: 'var(--primary-color)' }}
+                />
+                {event.showGiftRegistry ? 'Enabled' : 'Disabled (Optional)'}
+              </label>
             </div>
             
-            {showPaymentSettings && (
-              <div className="payment-config-form" style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '16px' }}>
-                <p className="text-muted text-sm">Add your P2P handles so guests can contribute directly to you.</p>
+            {event.showGiftRegistry && (
+              <div className="payment-config-form animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '16px' }}>
+                <p className="text-muted text-sm">Configure optional payment tags so guests can contribute gifts directly.</p>
                 <div className="input-group">
                   <label>Venmo Username (e.g., @john-doe)</label>
                   <input 

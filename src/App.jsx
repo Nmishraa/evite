@@ -28,6 +28,7 @@ const INITIAL_EVENT_DATA = {
   ],
   comments: [],
   templateId: 'birthday',
+  showGiftRegistry: false,
   paymentLinks: {
     venmo: '',
     cashapp: '',

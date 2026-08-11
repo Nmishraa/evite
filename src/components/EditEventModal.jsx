@@ -99,12 +99,69 @@ const EditEventModal = ({ event, onSave, onClose }) => {
             <label>Description</label>
             <textarea 
               name="description"
-              value={formData.description}
+              value={formData.description || ''}
               onChange={handleChange}
               placeholder="Tell your guests about the event..."
               rows={4}
               className="glass-input"
             />
+          </div>
+
+          <div className="input-group gift-registry-toggle-group" style={{ marginTop: '16px', padding: '16px', background: 'rgba(255,255,255,0.05)', borderRadius: '12px' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontWeight: 'bold' }}>
+              <input 
+                type="checkbox"
+                name="showGiftRegistry"
+                checked={formData.showGiftRegistry || false}
+                onChange={(e) => setFormData(prev => ({ ...prev, showGiftRegistry: e.target.checked }))}
+                style={{ width: '18px', height: '18px', accentColor: 'var(--primary-color)' }}
+              />
+              Enable Gift Registry & Contributions (Optional)
+            </label>
+
+            {formData.showGiftRegistry && (
+              <div className="gift-registry-inputs animate-fade-in" style={{ marginTop: '14px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div className="input-group">
+                  <label style={{ fontSize: '0.85rem' }}>Venmo Handle (Optional)</label>
+                  <input 
+                    type="text" 
+                    value={formData.paymentLinks?.venmo || ''}
+                    onChange={(e) => setFormData(prev => ({ 
+                      ...prev, 
+                      paymentLinks: { ...(prev.paymentLinks || {}), venmo: e.target.value } 
+                    }))}
+                    placeholder="@YourVenmoHandle"
+                    className="glass-input"
+                  />
+                </div>
+                <div className="input-group">
+                  <label style={{ fontSize: '0.85rem' }}>PayPal Link / Username (Optional)</label>
+                  <input 
+                    type="text" 
+                    value={formData.paymentLinks?.paypal || ''}
+                    onChange={(e) => setFormData(prev => ({ 
+                      ...prev, 
+                      paymentLinks: { ...(prev.paymentLinks || {}), paypal: e.target.value } 
+                    }))}
+                    placeholder="paypal.me/yourname"
+                    className="glass-input"
+                  />
+                </div>
+                <div className="input-group">
+                  <label style={{ fontSize: '0.85rem' }}>CashApp Tag (Optional)</label>
+                  <input 
+                    type="text" 
+                    value={formData.paymentLinks?.cashapp || ''}
+                    onChange={(e) => setFormData(prev => ({ 
+                      ...prev, 
+                      paymentLinks: { ...(prev.paymentLinks || {}), cashapp: e.target.value } 
+                    }))}
+                    placeholder="$YourCashTag"
+                    className="glass-input"
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="modal-footer">

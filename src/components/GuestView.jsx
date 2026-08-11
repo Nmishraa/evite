@@ -54,11 +54,13 @@ const GuestView = ({ event, onRSVP, currentUser, template, onAddComment }) => {
           <p>{event.description}</p>
         </div>
 
-        <PaymentWidget 
-          title="Gift Registry & Contributions" 
-          description="Your presence is enough, but if you'd like to give..." 
-          paymentLinks={event.paymentLinks}
-        />
+        {(event.showGiftRegistry === true || event.showGiftRegistry === 'true') && (
+          <PaymentWidget 
+            title="Gift Registry & Contributions (Optional)" 
+            description="Your presence is enough, but if you'd like to give..." 
+            paymentLinks={event.paymentLinks || {}}
+          />
+        )}
 
         {currentUser.isRegistered ? (
           <div className="rsvp-success animate-fade-in">
