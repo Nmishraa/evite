@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { pool, initDb } from './db.js';
+import { createSshTunnel } from './tunnel.js';
 
 dotenv.config();
 
@@ -17,15 +18,16 @@ app.get('/api/health', async (req, res) => {
     const result = await pool.query('SELECT NOW()');
     res.json({
       status: 'connected',
-      host: process.env.DB_HOST || '2.24.200.44',
+      host: process.env.DB_HOST || '127.0.0.1',
       port: process.env.DB_PORT || '5433',
+      database: process.env.DB_NAME || 'Neha_datta',
       timestamp: result.rows[0].now
     });
   } catch (error) {
     res.status(500).json({
       status: 'error',
       message: error.message,
-      host: process.env.DB_HOST || '2.24.200.44',
+      host: process.env.DB_HOST || '127.0.0.1',
       port: process.env.DB_PORT || '5433'
     });
   }
@@ -134,8 +136,9 @@ app.post('/api/comments', async (req, res) => {
 app.listen(PORT, async () => {
   console.log(`Backend server running on http://localhost:${PORT}`);
   try {
+    await createSshTunnel();
     await initDb();
   } catch (err) {
-    console.warn('Backend running in offline mode until DB credentials/connection are active.');
+    console.warn('Backend running in fallback mode until DB connection is active.');
   }
 });
