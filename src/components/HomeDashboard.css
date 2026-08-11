@@ -1,0 +1,96 @@
+.home-dashboard {
+  padding: 1rem 0;
+}
+
+.home-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 3rem;
+}
+
+.create-btn {
+  height: 48px;
+  padding: 0 1.5rem;
+  font-weight: 700;
+}
+
+.empty-events {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 5rem 2rem;
+  text-align: center;
+  gap: 1.5rem;
+}
+
+.empty-events h2 {
+  font-size: 1.8rem;
+}
+
+.event-thumb-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 2rem;
+  gap: 2rem;
+  margin-bottom: 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex-wrap: nowrap;
+}
+
+.event-thumb-card:hover {
+  transform: translateX(8px);
+  border-color: var(--primary);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.event-info-main {
+  flex-grow: 1;
+}
+
+.event-title-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.event-title-row h3 {
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.status-indicator {
+  padding: 0.2rem 0.6rem;
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--success);
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.event-details-row {
+  display: flex;
+  gap: 2rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.event-details-row span {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.guest-pill {
+  padding: 0.5rem 1rem;
+  background: var(--surface-hover);
+  border-radius: 99px;
+  font-weight: 600;
+  color: var(--text-main);
+  font-size: 0.85rem;
+}

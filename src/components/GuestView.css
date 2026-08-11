@@ -1,0 +1,297 @@
+.guest-view {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 1rem 0;
+}
+
+.invite-card {
+  max-width: 600px;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.template-banner {
+  height: 240px;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+
+.banner-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, var(--surface), transparent);
+}
+
+.invite-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: var(--accent);
+  z-index: 10;
+}
+
+.event-hero {
+  text-align: center;
+  margin-bottom: 3rem;
+  padding: 0 3rem;
+}
+
+/* Update padding for other elements */
+.event-details, .event-description, .rsvp-form, .rsvp-success {
+  padding-left: 3rem;
+  padding-right: 3rem;
+  padding-bottom: 3rem;
+}
+
+.event-details {
+  margin: 0 3rem 2rem 3rem;
+  background: rgba(15, 23, 42, 0.4);
+  border-radius: 16px;
+  border: 1px solid var(--surface-border);
+}
+
+.hosted-by {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  margin-top: 0.5rem;
+}
+
+.hosted-by span {
+  color: var(--text-main);
+  font-weight: 600;
+}
+
+.event-details {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  background: rgba(15, 23, 42, 0.4);
+  padding: 1.5rem;
+  border-radius: 16px;
+  border: 1px solid var(--surface-border);
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.icon-wrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-wrapper.primary {
+  background: rgba(99, 102, 241, 0.15);
+  color: var(--primary);
+}
+
+.icon-wrapper.secondary {
+  background: rgba(236, 72, 153, 0.15);
+  color: var(--secondary);
+}
+
+.icon-wrapper.warning {
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--warning);
+}
+
+.detail-item h3 {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 0.2rem;
+}
+
+.detail-item p {
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.event-description {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+  margin-bottom: 3rem;
+  text-align: center;
+  border-bottom: 1px solid var(--surface-border);
+  padding-bottom: 2rem;
+}
+
+.rsvp-form h2 {
+  text-align: center;
+  margin-bottom: 2rem;
+  font-size: 1.5rem;
+}
+
+.input-group {
+  margin-bottom: 1.5rem;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.input-with-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-with-icon svg {
+  position: absolute;
+  left: 1rem;
+  color: var(--text-muted);
+}
+
+.input-with-icon input {
+  width: 100%;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid var(--surface-border);
+  padding: 1rem 1rem 1rem 3rem;
+  border-radius: 12px;
+  color: white;
+  font-family: 'Outfit', sans-serif;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.input-with-icon input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+}
+
+.rsvp-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.rsvp-btn {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid var(--surface-border);
+  padding: 1rem 0.5rem;
+  border-radius: 12px;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+  font-family: inherit;
+  font-weight: 500;
+}
+
+.rsvp-btn:hover {
+  background: var(--surface-hover);
+  color: white;
+}
+
+.rsvp-btn.selected.yes {
+  background: var(--success);
+  border-color: var(--success);
+  color: white;
+  box-shadow: 0 4px 15px var(--success-glow);
+}
+
+.rsvp-btn.selected.maybe {
+  background: var(--warning);
+  border-color: var(--warning);
+  color: white;
+  box-shadow: 0 4px 15px var(--warning-glow);
+}
+
+.rsvp-btn.selected.no {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: white;
+  box-shadow: 0 4px 15px var(--danger-glow);
+}
+
+.submit-rsvp {
+  width: 100%;
+  padding: 1rem;
+  font-size: 1.1rem;
+}
+
+.submit-rsvp:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.rsvp-success {
+  text-align: center;
+  padding: 2rem 0;
+}
+
+.success-icon {
+  color: var(--success);
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.rsvp-success h2 {
+  font-size: 2rem;
+  color: white;
+  margin-bottom: 1rem;
+}
+
+.rsvp-success p {
+  color: var(--text-muted);
+  margin-bottom: 2rem;
+  font-size: 1.1rem;
+}
+
+.gift-section {
+  margin: 0 3rem 3rem 3rem;
+  padding: 1.5rem;
+  background: rgba(236, 72, 153, 0.05);
+  border: 1px dashed var(--secondary);
+  border-radius: 16px;
+}
+
+.gift-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.gift-header h3 {
+  font-size: 1.2rem;
+  margin-bottom: 0.2rem;
+  color: var(--text-main);
+}
+
+.gift-header p {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.gift-link {
+  border-style: solid;
+}
