@@ -52,6 +52,13 @@ export async function initDb() {
       );
     `);
 
+    // Ensure main event exists for foreign key references
+    await client.query(`
+      INSERT INTO events (id, title, description, date, location, host)
+      VALUES ('main-event-2026', 'My Special Event', 'Join us for a great night!', 'July 15, 2026', 'Skyline Terrace, NY', 'Alex & Jordan')
+      ON CONFLICT (id) DO NOTHING;
+    `);
+
     // Create guests table
     await client.query(`
       CREATE TABLE IF NOT EXISTS guests (
