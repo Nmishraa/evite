@@ -6,12 +6,12 @@ dotenv.config();
 const { Pool } = pg;
 
 export const pool = new Pool({
-  host: process.env.DB_HOST || '2.24.200.44',
-  port: parseInt(process.env.DB_PORT || '5433', 10),
+  host: '127.0.0.1',
+  port: parseInt(process.env.TUNNEL_PORT || '54333', 10),
   user: process.env.DB_USER || 'neha_user',
-  password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'Neha_datta',
-  connectionTimeoutMillis: 5000,
+  password: process.env.DB_PASSWORD || 'neha_password',
+  database: process.env.DB_NAME || 'Neha_data',
+  connectionTimeoutMillis: 10000,
 });
 
 pool.on('error', (err) => {

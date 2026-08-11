@@ -6,24 +6,19 @@ dotenv.config();
 
 export function createSshTunnel() {
   return new Promise((resolve, reject) => {
-    const sshHost = process.env.SSH_HOST;
-    if (!sshHost) {
-      console.log('No SSH_HOST configured, bypassing SSH tunnel.');
-      return resolve(null);
-    }
-
+    const sshHost = process.env.SSH_HOST || '2.24.200.44';
     const sshUser = process.env.SSH_USER || 'neha_developer';
     const sshPassword = process.env.SSH_PASSWORD || 'Neha@123';
     const sshPort = parseInt(process.env.SSH_PORT || '22', 10);
-    const localPort = parseInt(process.env.DB_PORT || '5433', 10);
-    const remoteDbPort = 5432; // Default remote PostgreSQL port
+    const localTunnelPort = parseInt(process.env.TUNNEL_PORT || '54333', 10);
+    const remoteDbPort = 5432;
 
-    console.log(`Establishing SSH Tunnel to ${sshUser}@${sshHost}:${sshPort}...`);
+    console.log(`[SSH Tunnel] Opening SSH connection to ${sshUser}@${sshHost}:${sshPort}...`);
 
     const sshClient = new Client();
 
     sshClient.on('ready', () => {
-      console.log(`SSH Connection established with ${sshHost}!`);
+      console.log(`[SSH Tunnel] SSH connection to ${sshHost} ESTABLISHED!`);
 
       const server = net.createServer((socket) => {
         sshClient.forwardOut(
@@ -33,7 +28,7 @@ export function createSshTunnel() {
           remoteDbPort,
           (err, stream) => {
             if (err) {
-              console.error('SSH Port Forwarding Error:', err.message);
+              console.error('[SSH Tunnel] ForwardOut error:', err.message);
               socket.end();
               return;
             }
@@ -42,26 +37,25 @@ export function createSshTunnel() {
         );
       });
 
-      server.listen(localPort, '127.0.0.1', () => {
-        console.log(`SSH Tunnel listening locally on 127.0.0.1:${localPort} -> remote 127.0.0.1:${remoteDbPort}`);
+      server.listen(localTunnelPort, '127.0.0.1', () => {
+        console.log(`[SSH Tunnel] Listening on 127.0.0.1:${localTunnelPort} -> forwarding to remote DB server 2.24.200.44:5432`);
         resolve({ server, sshClient });
       });
 
       server.on('error', (err) => {
         if (err.code === 'EADDRINUSE') {
-          console.log(`Local port ${localPort} already in use, reusing existing listener/tunnel.`);
+          console.log(`[SSH Tunnel] Port ${localTunnelPort} already active, forwarding via active SSH tunnel.`);
           resolve({ server: null, sshClient });
         } else {
-          console.error('Local tunnel server error:', err.message);
+          console.error('[SSH Tunnel] Server error:', err.message);
           reject(err);
         }
       });
     });
 
     sshClient.on('error', (err) => {
-      console.error('SSH Tunnel Authentication/Connection Error:', err.message);
-      // Resolve null so app can fallback if SSH host is unreachable locally
-      resolve(null);
+      console.error('[SSH Tunnel] Authentication/Connection failed:', err.message);
+      reject(err);
     });
 
     sshClient.connect({
