@@ -10,7 +10,7 @@ export const pool = new Pool({
   port: parseInt(process.env.DB_PORT || '5433', 10),
   user: process.env.DB_USER || 'neha_user',
   password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'evite_db',
+  database: process.env.DB_NAME || 'Neha_datta',
   connectionTimeoutMillis: 5000,
 });
 
