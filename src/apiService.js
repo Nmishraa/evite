@@ -53,6 +53,19 @@ export const apiService = {
     }
   },
 
+  async deleteEvent(eventId) {
+    try {
+      const response = await fetch(`${API_BASE}/events/${eventId}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) throw new Error('Failed to delete event');
+      return await response.json();
+    } catch (error) {
+      console.warn('PostgreSQL API deleteEvent warning:', error.message);
+      return null;
+    }
+  },
+
   async saveGuest(guestData) {
     try {
       const payload = {

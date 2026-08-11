@@ -108,6 +108,17 @@ app.post('/api/events', async (req, res) => {
   }
 });
 
+// DELETE event
+app.delete('/api/events/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    await pool.query('DELETE FROM events WHERE id = $1', [id]);
+    res.json({ status: 'deleted', id });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // GET guests for an event
 app.get('/api/events/:eventId/guests', async (req, res) => {
   const { eventId } = req.params;

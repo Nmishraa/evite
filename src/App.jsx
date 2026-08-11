@@ -61,17 +61,26 @@ function App() {
     });
   }, []);
 
+  const [eventsList, setEventsList] = useState([INITIAL_EVENT_DATA]);
+
   // Load database events, guests, and comments on mount/login
   useEffect(() => {
     if (!user) return;
-    
-    // Save initial event to DB if not exists
-    apiService.saveEvent(INITIAL_EVENT_DATA);
 
-    // Fetch guests & comments from PostgreSQL DB
+    // Fetch all events from PostgreSQL DB
     const fetchDbData = async () => {
-      const dbGuests = await apiService.getGuests(DEFAULT_EVENT_ID);
-      const dbComments = await apiService.getComments(DEFAULT_EVENT_ID);
+      const dbEvents = await apiService.getEvents();
+      if (dbEvents && dbEvents.length > 0) {
+        setEventsList(dbEvents);
+        setEventData(dbEvents[0]);
+      } else {
+        await apiService.saveEvent(INITIAL_EVENT_DATA);
+        setEventsList([INITIAL_EVENT_DATA]);
+      }
+
+      const activeEventId = eventData?.id || DEFAULT_EVENT_ID;
+      const dbGuests = await apiService.getGuests(activeEventId);
+      const dbComments = await apiService.getComments(activeEventId);
       if (dbGuests && dbGuests.length > 0) {
         setEventData(prev => ({ ...prev, guests: dbGuests }));
       }
@@ -130,9 +139,10 @@ function App() {
   const handleRSVP = async (status, name) => {
     if (!name) return;
     try {
-      const newGuest = { eventId: DEFAULT_EVENT_ID, name, status };
+      const activeId = eventData?.id || DEFAULT_EVENT_ID;
+      const newGuest = { eventId: activeId, name, status };
       await apiService.saveGuest(newGuest);
-      await firebaseService.updateRSVP(DEFAULT_EVENT_ID, { name, status });
+      await firebaseService.updateRSVP(activeId, { name, status });
       
       // Update local state
       setEventData(prev => ({
@@ -146,30 +156,46 @@ function App() {
   };
 
   const handleTemplateSelect = async (template) => {
-    const updatedData = {
-      ...eventData,
-      templateId: template.id,
+    const newEventId = `evt_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+    const newEvent = {
+      id: newEventId,
       title: template.id === 'temple' ? 'Temple Visit & Blessing' : 
              template.id === 'birthday' ? 'Birthday Celebration' :
              template.id === 'wedding' ? 'Wedding Ceremony' : 
-             template.id === 'graduation' ? 'Graduation Commencement' : 'Dinner Party'
+             template.id === 'graduation' ? 'Graduation Commencement' : 'Dinner Party',
+      date: 'Saturday, July 15, 2026',
+      time: '8:00 PM',
+      location: 'Skyline Terrace, NY',
+      host: user?.displayName || user?.name || 'Alex & Jordan',
+      description: 'Join us for a wonderful event!',
+      category: template.id,
+      theme: template.id,
+      templateId: template.id,
+      showGiftRegistry: false,
+      guests: [],
+      comments: []
     };
+
     setSelectedTemplate(template);
-    setEventData(updatedData);
+    setEventData(newEvent);
+    setEventsList(prev => [newEvent, ...prev]);
     setCurrentScreen('preview');
     
     try {
-      await apiService.saveEvent(updatedData);
-      await firebaseService.saveEvent(DEFAULT_EVENT_ID, updatedData);
-    } catch (err) {}
+      await apiService.saveEvent(newEvent);
+      await firebaseService.saveEvent(newEventId, newEvent);
+    } catch (err) {
+      console.error("Create event error", err);
+    }
   };
 
   const handleUpdateEvent = async (updatedFields) => {
     const newData = { ...eventData, ...updatedFields };
     setEventData(newData);
+    setEventsList(prev => prev.map(e => e.id === newData.id ? newData : e));
     try {
       await apiService.saveEvent(newData);
-      await firebaseService.saveEvent(DEFAULT_EVENT_ID, newData);
+      await firebaseService.saveEvent(newData.id, newData);
     } catch (err) {
       console.error("Update error", err);
     }
@@ -177,14 +203,15 @@ function App() {
 
   const handleAddGuest = async (guest) => {
     try {
+      const activeId = eventData?.id || DEFAULT_EVENT_ID;
       const guestPayload = {
-        eventId: DEFAULT_EVENT_ID,
+        eventId: activeId,
         name: guest.name,
         email: guest.contact || guest.email || '',
         status: 'pending'
       };
       await apiService.saveGuest(guestPayload);
-      await firebaseService.updateRSVP(DEFAULT_EVENT_ID, { ...guest, status: 'pending' });
+      await firebaseService.updateRSVP(activeId, { ...guest, status: 'pending' });
 
       setEventData(prev => ({
         ...prev,
@@ -197,25 +224,27 @@ function App() {
 
   const handleRemoveGuest = async (guestId) => {
     try {
+      const activeId = eventData?.id || DEFAULT_EVENT_ID;
       setEventData(prev => ({
         ...prev,
         guests: (prev.guests || []).filter(g => g.id !== guestId)
       }));
-      await firebaseService.removeGuest(DEFAULT_EVENT_ID, guestId);
+      await firebaseService.removeGuest(activeId, guestId);
     } catch (err) {}
   };
 
   const handleAddComment = async (text) => {
+    const activeId = eventData?.id || DEFAULT_EVENT_ID;
     const authorName = user?.displayName || user?.name || currentUser.name || 'Guest';
     const newComment = {
-      eventId: DEFAULT_EVENT_ID,
+      eventId: activeId,
       author: authorName,
       text,
       time: 'Just now'
     };
     try {
       await apiService.addComment(newComment);
-      await firebaseService.addComment(DEFAULT_EVENT_ID, newComment);
+      await firebaseService.addComment(activeId, newComment);
 
       setEventData(prev => ({
         ...prev,
@@ -232,8 +261,12 @@ function App() {
 
   const handleDeleteEvent = async (eventId) => {
     try {
+      await apiService.deleteEvent(eventId);
       await firebaseService.deleteEvent(eventId);
-      setEventData(null); // Clear local state
+      setEventsList(prev => prev.filter(e => e.id !== eventId));
+      if (eventData?.id === eventId) {
+        setEventData(null);
+      }
     } catch (err) {}
   };
 
@@ -250,8 +283,6 @@ function App() {
   if (!user) {
     return <Auth onLogin={handleLogin} />;
   }
-
-  const eventsList = eventData && !eventData.deleted ? [eventData] : [];
 
   return (
     <div className="app-container" style={{ '--event-theme': selectedTemplate?.primaryColor || 'var(--primary)' }}>
